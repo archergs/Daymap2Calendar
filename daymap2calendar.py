@@ -2,7 +2,6 @@ from __future__ import print_function
 import requests
 import pandas as pd
 from requests_ntlm import HttpNtlmAuth
-from bs4 import BeautifulSoup
 import re
 import math
 import time
@@ -11,6 +10,7 @@ import pickle
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+import datetime
 
 # parse timetable into list
 def parseTimetable(timetable):
@@ -65,6 +65,11 @@ def googleAuth():
 
 def publishClassesToGoogle(service):
     print("Sending classes to Google Calendar. Please wait...")
+    for newClass in sorted_data:
+        newEvent = event
+        newEvent["summary"] = newClass[1]
+        newEvent["description"] = f"{newClass[2]} in {newClass[0]}"
+        #newEvent["start"]["dateTime"] = 
 
 
 validLines = [1,3,4,5,7,8,9,12,13,15] # only these rows in daymap's timetable contain lessons
@@ -114,10 +119,13 @@ timetable = session.get('http://daymap.gihs.sa.edu.au/timetable/timetable.aspx')
 assessment = session.get("http://daymap.gihs.sa.edu.au/student/assessmentsummary.aspx")
 
 if timetable.status_code == 200 and assessment.status_code == 200:
-    print("status 200 OK, proceeding to parse ASPX...")
+    print("Welcome, you are logged in. Locating and parsing classes...")
     parsedTimetable = parseTimetable(timetable.text)
+    print("Classes found. Logging in to Google...")
     googleService = googleAuth()
+    print("Logged in. Uploading classes to Google Calendar...")
     publishClassesToGoogle(googleService)
+    print("Classes uploaded. Thank you for using Daymap2Calendar!")
 
 else:
     print(f"Login failed, try again later. Quitting... (error code: {timetable.status_code} {assessment.status_code})")
