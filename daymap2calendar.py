@@ -52,7 +52,8 @@ assessment = session.get("http://daymap.gihs.sa.edu.au/student/assessmentsummary
 
 if timetable.status_code == 200 and assessment.status_code == 200:
     print("status 200 OK, proceeding to parse ASPX...")
-    parsedTimetable = parseTimetable(timetable.text))
+    parsedTimetable = parseTimetable(timetable.text)
+    googleAuth()
 
 else:
     print(f"Login failed, try again later. Quitting... (error code: {timetable.status_code} {assessment.status_code})")
