@@ -33,7 +33,7 @@ def parseTimetable(timetable):
     return sorted_data
 
 def googleAuth():
-    
+    print("google auth")
 
 validLines = [1,3,4,5,7,8,9,12,13,15] # only these rows in daymap's timetable contain lessons
 sorted_data =[]
