@@ -21,8 +21,8 @@ def parseTimetable(timetable):
         index = weekdays.index(day)
         if index != 0:
             dayData = []
-            count = 0
             for lesson in table[day]:
+                lessonCounter = 0
                 if lesson == lesson: # check if lesson is a free, or as Pandas says, NaN (not a number). if it is NaN, it will return false
                     # parse room, subject name and teacher from the lesson data
                     room = re.findall(r'[0-9][A-Z][A-Z][0-9][0-9]', str(lesson))[0]
@@ -30,10 +30,10 @@ def parseTimetable(timetable):
                     teacher = re.findall(rf'(?<={room}).*', str(lesson))[0].strip()
 
                     # add data to list, which is appended to another list of subjects for that day
-                    data = [room, name, teacher]
+                    data = [lessonCounter, room, name, teacher]
                     dayData.append(data)
 
-                    count = count + 1
+                lessonCounter = lessonCounter + 1
             # append data for the day to the complete week list
             sorted_data.append(dayData)
     return sorted_data
@@ -63,13 +63,37 @@ def googleAuth():
 
     return build('calendar', 'v3', credentials=creds)
 
+def calculateSubjectTime(lesson):
+    lessonLine = lesson[0]
+    if lessonLine == 1:
+        time = 
+    elif lessonLine == 3:
+        print("1")
+    elif lessonLine == 4:
+        print("1")
+    elif lessonLine == 5:
+        print("1")
+    elif lessonLine == 7:
+        print("1")
+    elif lessonLine == 8:
+        print("1")
+    elif lessonLine == 9:
+        print("1")
+    elif lessonLine == 12:
+        print("1")
+    elif lessonLine == 13:
+        print("1")
+    else: # 15, a.k.a Line 0. These aren't common, hence the else. also makes code simpler
+
+
 def publishClassesToGoogle(service):
     print("Sending classes to Google Calendar. Please wait...")
     for newClass in sorted_data:
         newEvent = event
-        newEvent["summary"] = newClass[1]
-        newEvent["description"] = f"{newClass[2]} in {newClass[0]}"
-        #newEvent["start"]["dateTime"] = 
+        newEvent["summary"] = newClass[2]
+        newEvent["description"] = f"{newClass[3]} in {newClass[1]}"
+        # calculate lesson time during the day
+        newEvent["start"]["dateTime"] = calculateSubjectTime(newClass)
 
 
 validLines = [1,3,4,5,7,8,9,12,13,15] # only these rows in daymap's timetable contain lessons
