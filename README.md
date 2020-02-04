@@ -16,6 +16,7 @@ Daymap2Calendar depends on the following third-party libraries:
 
 To install the dependencies, run the following: ```python3 -m pip install --upgrade pandas requests_ntlm google-api-python-client google-auth-httplib2 google-auth-oauthlib```
 There is a chance that Python will complain about other dependencies which you will also need to install.
+Please note: You will need to enable the Google Calendar API for your Google account and download the resulting ```credentials.json``` file. This is neccesary to authenticate the program with the users Google account. Go [here](https://developers.google.com/calendar/quickstart/python) to learn more.
 
 ## Contributing
 Wanna help make Daymap2Calendar better? If it's a small problem, open an issue and tell me about whats going wrong. If you want to make
