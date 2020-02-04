@@ -11,6 +11,7 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import datetime
+import calendar
 
 # parse timetable into list
 def parseTimetable(timetable):
@@ -21,8 +22,8 @@ def parseTimetable(timetable):
         index = weekdays.index(day)
         if index != 0:
             dayData = []
+            lessonCounter = 1
             for lesson in table[day]:
-                lessonCounter = 0
                 if lesson == lesson: # check if lesson is a free, or as Pandas says, NaN (not a number). if it is NaN, it will return false
                     # parse room, subject name and teacher from the lesson data
                     room = re.findall(r'[0-9][A-Z][A-Z][0-9][0-9]', str(lesson))[0]
@@ -36,6 +37,7 @@ def parseTimetable(timetable):
                 lessonCounter = lessonCounter + 1
             # append data for the day to the complete week list
             sorted_data.append(dayData)
+    print(sorted_data)
     return sorted_data
 
 def googleAuth():
@@ -63,37 +65,165 @@ def googleAuth():
 
     return build('calendar', 'v3', credentials=creds)
 
-def calculateSubjectTime(lesson):
-    lessonLine = lesson[0]
-    if lessonLine == 1:
-        time = 
-    elif lessonLine == 3:
-        print("1")
-    elif lessonLine == 4:
-        print("1")
-    elif lessonLine == 5:
-        print("1")
-    elif lessonLine == 7:
-        print("1")
-    elif lessonLine == 8:
-        print("1")
-    elif lessonLine == 9:
-        print("1")
-    elif lessonLine == 12:
-        print("1")
-    elif lessonLine == 13:
-        print("1")
-    else: # 15, a.k.a Line 0. These aren't common, hence the else. also makes code simpler
+def findMonday(year):
+    cal = calendar.Calendar(0)
+    month = cal.monthdatescalendar(year, 1)
+    lastweek = month[-1]
+    monday = lastweek[0]
+    return monday
 
+def calculateSubjectTime(lesson, day):
+    lessonLine = lesson[0]
+    today = datetime.datetime.now()
+    monday = findMonday(today.year)
+    if lessonLine == 1: # HG Wednesday
+        date = monday + datetime.timedelta(days=2)
+        startTime = datetime.datetime.combine(date, datetime.time(9, 50))
+        endTime = datetime.datetime.combine(date, datetime.time(10, 00))
+        return [startTime.isoformat(), endTime.isoformat()]
+    elif lessonLine == 3: # HG Monday & Friday
+        if day == 0: # Monday
+            date = monday
+        elif day == 4: # Friday
+            date = monday + datetime.timedelta(days=4)
+            
+        startTime = datetime.datetime.combine(date, datetime.time(8, 45))
+        endTime = datetime.datetime.combine(date, datetime.time(8, 55))
+        return [startTime.isoformat(), endTime.isoformat()]
+
+    elif lessonLine == 4: # Lesson 1 (every day)
+        if day == 0:
+            date = monday
+            startTime = datetime.datetime.combine(date, datetime.time(8, 55))
+            endTime = datetime.datetime.combine(date, datetime.time(9, 50))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 1: 
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(8, 45))
+            endTime = datetime.datetime.combine(date, datetime.time(9, 50))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 2:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(10, 00)) 
+            endTime = datetime.datetime.combine(date, datetime.time(11, 00))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 3:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(8, 45))
+            endTime = datetime.datetime.combine(date, datetime.time(9, 50)) 
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 4:
+            date = monday  + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(8, 55))
+            endTime = datetime.datetime.combine(date, datetime.time(10, 15))
+            return [startTime.isoformat(), endTime.isoformat()]
+    elif lessonLine == 5: # Lesson 2 (Mon, Tue, Thurs)
+        if day == 0:
+            date = monday
+            startTime = datetime.datetime.combine(date, datetime.time(9, 50))
+            endTime = datetime.datetime.combine(date, datetime.time(10, 45))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 1:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(9, 50))
+            endTime = datetime.datetime.combine(date, datetime.time(10, 50))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 3:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(9, 50))
+            endTime = datetime.datetime.combine(date, datetime.time(10, 50))
+            return [startTime.isoformat(), endTime.isoformat()]
+    elif lessonLine == 7: # Lesson 2 (Wed, Fri)
+        date = monday + datetime.timedelta(days=day)
+        if day == 2:
+            startTime = datetime.datetime.combine(date, datetime.time(11, 25))
+            endTime = datetime.datetime.combine(date, datetime.time(12, 15))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 4:
+            startTime = datetime.datetime.combine(date, datetime.time(10, 40))
+            endTime = datetime.datetime.combine(date, datetime.time(12, 00))
+            return [startTime.isoformat(), endTime.isoformat()]
+    elif lessonLine == 8: # Lesson 3 (every day)
+        if day == 0: # Monday
+            date = monday
+            startTime = datetime.datetime.combine(date, datetime.time(11, 10))
+            endTime = datetime.datetime.combine(date, datetime.time(12, 15))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 1: # Tuesday
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(11, 15))
+            endTime = datetime.datetime.combine(date, datetime.time(12, 5))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 2: # Wednesday
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(11, 25)) 
+            endTime = datetime.datetime.combine(date, datetime.time(12, 15))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 3: # Thursday
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(11, 15))
+            endTime = datetime.datetime.combine(date, datetime.time(12, 30))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 4: # Friday
+            date = monday  + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(10, 40))
+            endTime = datetime.datetime.combine(date, datetime.time(12, 0))
+            return [startTime.isoformat(), endTime.isoformat()]
+    elif lessonLine == 9: # Lesson 4 (Mon, Tue, Thurs)
+        if day == 0:
+            date = monday
+            startTime = datetime.datetime.combine(date, datetime.time(12, 15))
+            endTime = datetime.datetime.combine(date, datetime.time(13, 20))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 1:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(12, 5))
+            endTime = datetime.datetime.combine(date, datetime.time(13, 20))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 3:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(12, 30))
+            endTime = datetime.datetime.combine(date, datetime.time(13, 20))
+            return [startTime.isoformat(), endTime.isoformat()]
+    elif lessonLine == 13 or lessonLine == 12: # Lesson 5 (Mon, Tue, Thurs) and Lesson 4 (Wed, Fri)
+        if day == 0:
+            date = monday
+        else:
+            date = monday + datetime.timedelta(days=day) 
+        
+        startTime = datetime.datetime.combine(date, datetime.time(14, 5))
+        endTime = datetime.datetime.combine(date, datetime.time(15, 25))
+
+        return [startTime.isoformat(), endTime.isoformat()]
+    else: # 15, a.k.a Line 0. These aren't common, hence the else. also makes code simpler
+        print("last")
 
 def publishClassesToGoogle(service):
     print("Sending classes to Google Calendar. Please wait...")
-    for newClass in sorted_data:
-        newEvent = event
-        newEvent["summary"] = newClass[2]
-        newEvent["description"] = f"{newClass[3]} in {newClass[1]}"
-        # calculate lesson time during the day
-        newEvent["start"]["dateTime"] = calculateSubjectTime(newClass)
+    dayCount = 0
+    for day in sorted_data:
+        for newClass in day:
+            newEvent = event
+            newEvent["summary"] = newClass[2]
+            newEvent["description"] = f"{newClass[3]} in {newClass[1]}"
+            # calculate lesson time during the day
+            times = calculateSubjectTime(newClass, dayCount)
+            finalTimes = []
+            for i in times:
+                if time.localtime().tm_isdst == 0:
+                    i += "+09:30"
+                else:
+                    i += "+10:30"
+                finalTimes.append(i)
+
+            newEvent["start"]["dateTime"] = finalTimes[0]
+            newEvent["start"]["timeZone"] = "Australia/Adelaide"
+            newEvent["end"]["dateTime"] = finalTimes[1]
+            newEvent["end"]["timeZone"] = "Australia/Adelaide"
+            newEvent["recurrence"] = ['RRULE:FREQ=WEEKLY;COUNT=40']
+            print(newEvent)
+
+        dayCount = dayCount + 1
 
 
 validLines = [1,3,4,5,7,8,9,12,13,15] # only these rows in daymap's timetable contain lessons
