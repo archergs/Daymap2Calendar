@@ -216,12 +216,13 @@ def publishClassesToGoogle(service):
                     i += "+10:30"
                 finalTimes.append(i)
 
+            # create an event for the class, filling in appropriate information
             newEvent["start"]["dateTime"] = finalTimes[0]
             newEvent["start"]["timeZone"] = "Australia/Adelaide"
             newEvent["end"]["dateTime"] = finalTimes[1]
             newEvent["end"]["timeZone"] = "Australia/Adelaide"
-            newEvent["recurrence"] = ['RRULE:FREQ=WEEKLY;COUNT=40']
-            print(newEvent)
+            newEvent["recurrence"] = ['RRULE:FREQ=WEEKLY;COUNT=46']
+            postEvent = service.events().insert(calendarId='primary', body=newEvent).execute()
 
         dayCount = dayCount + 1
 
@@ -249,12 +250,11 @@ event = {
     'RRULE:FREQ=DAILY;COUNT=2'
   ],
   'attendees': [
-    {'email': 'lpage@example.com'},
+    
   ],
   'reminders': {
     'useDefault': False,
     'overrides': [
-      {'method': 'email', 'minutes': 24 * 60},
       {'method': 'popup', 'minutes': 10},
     ],
   },
@@ -279,7 +279,8 @@ if timetable.status_code == 200 and assessment.status_code == 200:
     googleService = googleAuth()
     print("Logged in. Uploading classes to Google Calendar...")
     publishClassesToGoogle(googleService)
-    print("Classes uploaded. Thank you for using Daymap2Calendar!")
+    print("Classes uploaded. Please note that school and public holidays are not taken into account.")
+    print("")
 
 else:
     print(f"Login failed, try again later. Quitting... (error code: {timetable.status_code} {assessment.status_code})")
