@@ -117,6 +117,7 @@ def calculateSubjectTime(lesson, day):
             startTime = datetime.datetime.combine(date, datetime.time(8, 55))
             endTime = datetime.datetime.combine(date, datetime.time(10, 15))
             return [startTime.isoformat(), endTime.isoformat()]
+
     elif lessonLine == 5: # Lesson 2 (Mon, Tue, Thurs)
         if day == 0:
             date = monday
@@ -133,6 +134,7 @@ def calculateSubjectTime(lesson, day):
             startTime = datetime.datetime.combine(date, datetime.time(9, 50))
             endTime = datetime.datetime.combine(date, datetime.time(10, 50))
             return [startTime.isoformat(), endTime.isoformat()]
+
     elif lessonLine == 7: # Lesson 2 (Wed, Fri)
         date = monday + datetime.timedelta(days=day)
         if day == 2:
@@ -143,6 +145,7 @@ def calculateSubjectTime(lesson, day):
             startTime = datetime.datetime.combine(date, datetime.time(10, 40))
             endTime = datetime.datetime.combine(date, datetime.time(12, 00))
             return [startTime.isoformat(), endTime.isoformat()]
+
     elif lessonLine == 8: # Lesson 3 (every day)
         if day == 0: # Monday
             date = monday
@@ -156,8 +159,8 @@ def calculateSubjectTime(lesson, day):
             return [startTime.isoformat(), endTime.isoformat()]
         elif day == 2: # Wednesday
             date = monday + datetime.timedelta(days=day)
-            startTime = datetime.datetime.combine(date, datetime.time(11, 25)) 
-            endTime = datetime.datetime.combine(date, datetime.time(12, 15))
+            startTime = datetime.datetime.combine(date, datetime.time(12, 15)) 
+            endTime = datetime.datetime.combine(date, datetime.time(13, 20))
             return [startTime.isoformat(), endTime.isoformat()]
         elif day == 3: # Thursday
             date = monday + datetime.timedelta(days=day)
@@ -166,9 +169,10 @@ def calculateSubjectTime(lesson, day):
             return [startTime.isoformat(), endTime.isoformat()]
         elif day == 4: # Friday
             date = monday  + datetime.timedelta(days=day)
-            startTime = datetime.datetime.combine(date, datetime.time(10, 40))
-            endTime = datetime.datetime.combine(date, datetime.time(12, 0))
+            startTime = datetime.datetime.combine(date, datetime.time(12, 00))
+            endTime = datetime.datetime.combine(date, datetime.time(13, 20))
             return [startTime.isoformat(), endTime.isoformat()]
+
     elif lessonLine == 9: # Lesson 4 (Mon, Tue, Thurs)
         if day == 0:
             date = monday
@@ -185,6 +189,7 @@ def calculateSubjectTime(lesson, day):
             startTime = datetime.datetime.combine(date, datetime.time(12, 30))
             endTime = datetime.datetime.combine(date, datetime.time(13, 20))
             return [startTime.isoformat(), endTime.isoformat()]
+
     elif lessonLine == 13 or lessonLine == 12: # Lesson 5 (Mon, Tue, Thurs) and Lesson 4 (Wed, Fri)
         if day == 0:
             date = monday
@@ -196,7 +201,16 @@ def calculateSubjectTime(lesson, day):
 
         return [startTime.isoformat(), endTime.isoformat()]
     else: # 15, a.k.a Line 0. These aren't common, hence the else. also makes code simpler
-        print("last")
+        if day == 1:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(15, 35))
+            endTime = datetime.datetime.combine(date, datetime.time(17, 15))
+            return [startTime.isoformat(), endTime.isoformat()]
+        elif day == 3:
+            date = monday + datetime.timedelta(days=day)
+            startTime = datetime.datetime.combine(date, datetime.time(15, 35))
+            endTime = datetime.datetime.combine(date, datetime.time(17, 15))
+            return [startTime.isoformat(), endTime.isoformat()]
 
 def publishClassesToGoogle(service):
     print("Sending classes to Google Calendar. Please wait...")
