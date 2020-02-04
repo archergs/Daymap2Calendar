@@ -1,2 +1,7 @@
 credentials.json
 token.pickle
+/.vscode
+/dist
+/output
+/script/__pycache__/
+daymap2calendar.spec

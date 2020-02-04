@@ -12,6 +12,7 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 import datetime
 import calendar
+import lxml
 
 # parse timetable into list
 def parseTimetable(timetable):
@@ -37,13 +38,19 @@ def parseTimetable(timetable):
                 lessonCounter = lessonCounter + 1
             # append data for the day to the complete week list
             sorted_data.append(dayData)
-    print(sorted_data)
     return sorted_data
 
+def resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        # this may or may not work, but is needed to use Pyinstaller
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 def googleAuth():
-    """Shows basic usage of the Google Calendar API.
-    Prints the start and name of the next 10 events on the user's calendar.
-    """
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
@@ -56,8 +63,9 @@ def googleAuth():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
+            credsPath = resource_path("credentials.json")
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                credsPath, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
         with open('token.pickle', 'wb') as token:
@@ -92,27 +100,27 @@ def calculateSubjectTime(lesson, day):
         return [startTime.isoformat(), endTime.isoformat()]
 
     elif lessonLine == 4: # Lesson 1 (every day)
-        if day == 0:
+        if day == 0: # Monday
             date = monday
             startTime = datetime.datetime.combine(date, datetime.time(8, 55))
             endTime = datetime.datetime.combine(date, datetime.time(9, 50))
             return [startTime.isoformat(), endTime.isoformat()]
-        elif day == 1: 
+        elif day == 1: # Tuesday
             date = monday + datetime.timedelta(days=day)
             startTime = datetime.datetime.combine(date, datetime.time(8, 45))
             endTime = datetime.datetime.combine(date, datetime.time(9, 50))
             return [startTime.isoformat(), endTime.isoformat()]
-        elif day == 2:
+        elif day == 2: # Wednesday
             date = monday + datetime.timedelta(days=day)
             startTime = datetime.datetime.combine(date, datetime.time(10, 00)) 
             endTime = datetime.datetime.combine(date, datetime.time(11, 00))
             return [startTime.isoformat(), endTime.isoformat()]
-        elif day == 3:
+        elif day == 3: # Thursday
             date = monday + datetime.timedelta(days=day)
             startTime = datetime.datetime.combine(date, datetime.time(8, 45))
             endTime = datetime.datetime.combine(date, datetime.time(9, 50)) 
             return [startTime.isoformat(), endTime.isoformat()]
-        elif day == 4:
+        elif day == 4: # Friday
             date = monday  + datetime.timedelta(days=day)
             startTime = datetime.datetime.combine(date, datetime.time(8, 55))
             endTime = datetime.datetime.combine(date, datetime.time(10, 15))
@@ -275,8 +283,7 @@ event = {
 }
 
 #username and password
-username = input(r"Enter Daymap username (e.g. domain\firstname.lastname): ")
-print(rf'{username}')
+username = input(r"Enter Daymap username (e.g. CURRIC\firstname.lastname): ")
 password = input("Enter Daymap password: ")
 
 print("Logging in. Please wait...")
@@ -287,14 +294,15 @@ timetable = session.get('http://daymap.gihs.sa.edu.au/timetable/timetable.aspx')
 assessment = session.get("http://daymap.gihs.sa.edu.au/student/assessmentsummary.aspx")
 
 if timetable.status_code == 200 and assessment.status_code == 200:
-    print("Welcome, you are logged in. Locating and parsing classes...")
+    print("Logged in! Locating and parsing classes...")
     parsedTimetable = parseTimetable(timetable.text)
     print("Classes found. Logging in to Google...")
     googleService = googleAuth()
     print("Logged in. Uploading classes to Google Calendar...")
     publishClassesToGoogle(googleService)
-    print("Classes uploaded. Please note that school and public holidays are not taken into account.")
-    print("")
+    print("Classes uploaded! Please note that school and public holidays are not taken into account.")
+    print("Thank you for using Daymap2Calendar. Created by Archer Gardiner-Sheridan.")
+    time.sleep(3)
 
 else:
     print(f"Login failed, try again later. Quitting... (error code: {timetable.status_code} {assessment.status_code})")
