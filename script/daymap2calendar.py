@@ -13,6 +13,7 @@ from google.auth.transport.requests import Request
 import datetime
 import calendar
 import lxml
+import sys
 
 # parse timetable into list
 def parseTimetable(timetable):
@@ -40,16 +41,6 @@ def parseTimetable(timetable):
             sorted_data.append(dayData)
     return sorted_data
 
-def resource_path(relative_path):
-    try:
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        # this may or may not work, but is needed to use Pyinstaller
-        base_path = sys._MEIPASS
-    except Exception:
-        base_path = os.path.abspath(".")
-
-    return os.path.join(base_path, relative_path)
-
 def googleAuth():
     creds = None
     # The file token.pickle stores the user's access and refresh tokens, and is
@@ -63,7 +54,7 @@ def googleAuth():
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            credsPath = resource_path("credentials.json")
+            credsPath = "../credentials.json"
             flow = InstalledAppFlow.from_client_secrets_file(
                 credsPath, SCOPES)
             creds = flow.run_local_server(port=0)
@@ -282,28 +273,35 @@ event = {
   },
 }
 
-#username and password
-username = input(r"Enter Daymap username (e.g. CURRIC\firstname.lastname): ")
-password = input("Enter Daymap password: ")
+def start():
+    if len(sys.argv) > 1:
+        username = sys.argv[1]
+        password = sys.argv[2]
+    else: 
+        #username and password
+        username = input(r"Enter Daymap username (e.g. CURRIC\firstname.lastname): ")
+        password = input("Enter Daymap password: ")
 
-print("Logging in. Please wait...")
+    print("Logging in. Please wait...")
 
-session = requests.Session()
-session.auth = HttpNtlmAuth(rf'{username}',rf'{password}')
-timetable = session.get('http://daymap.gihs.sa.edu.au/timetable/timetable.aspx')
-assessment = session.get("http://daymap.gihs.sa.edu.au/student/assessmentsummary.aspx")
+    session = requests.Session()
+    session.auth = HttpNtlmAuth(rf'{username}',rf'{password}')
+    timetable = session.get('http://daymap.gihs.sa.edu.au/timetable/timetable.aspx')
+    assessment = session.get("http://daymap.gihs.sa.edu.au/student/assessmentsummary.aspx")
 
-if timetable.status_code == 200 and assessment.status_code == 200:
-    print("Logged in! Locating and parsing classes...")
-    parsedTimetable = parseTimetable(timetable.text)
-    print("Classes found. Logging in to Google...")
-    googleService = googleAuth()
-    print("Logged in. Uploading classes to Google Calendar...")
-    publishClassesToGoogle(googleService)
-    print("Classes uploaded! Please note that school and public holidays are not taken into account.")
-    print("Thank you for using Daymap2Calendar. Created by Archer Gardiner-Sheridan.")
-    time.sleep(3)
+    if timetable.status_code == 200 and assessment.status_code == 200:
+        print("Logged in! Locating and parsing classes...")
+        parsedTimetable = parseTimetable(timetable.text)
+        print("Classes found. Logging in to Google...")
+        googleService = googleAuth()
+        print("Logged in. Uploading classes to Google Calendar...")
+        publishClassesToGoogle(googleService)
+        print("Classes uploaded! Please note that school and public holidays are not taken into account.")
+        print("Thank you for using Daymap2Calendar. Created by Archer Gardiner-Sheridan.")
+        time.sleep(3)
 
-else:
-    print(f"Login failed, try again later. Quitting... (error code: {timetable.status_code} {assessment.status_code})")
-    time.sleep(2)
+    else:
+        print(f"Login failed, try again later. Quitting... (error codes: {timetable.status_code} {assessment.status_code})")
+        time.sleep(2)
+
+start()
