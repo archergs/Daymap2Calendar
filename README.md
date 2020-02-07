@@ -7,6 +7,9 @@ for several reasons:
 For general use, it is recommended that you use the GUI (general user interface) version, as it is far more user friendly. However, feel
 free to download the code and play around with it as you wish.
 
+## Usage
+To use Daymap2Calendar, run ```Daymap2Calendar.bat```. It will install everything that is required, including Python 3. If you would prefer to install dependencies manually, see the section below. 
+
 ## Dependencies
 Daymap2Calendar depends on the following third-party libraries:
 - Pandas
